@@ -40,7 +40,7 @@ class CompressedImageViewer(object):
         w = self.g.shape[0]
         h = self.g.shape[1]
 
-        current_image_obj = PIL.Image.open(io.BytesIO(self.msg.data))
+        current_image_obj = PIL.Image.open(io.BytesIO(bytes(self.msg.data)))
 
         image_ratio = 0.5 * float(current_image_obj.size[1]) / current_image_obj.size[0] # height / width
         terminal_ratio = 0.5 * float(h) / w  # height / width

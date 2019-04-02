@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import os
-import rospy
+import rclpy
 import sys
 import time
 import random
 import threading
+from rclpy.executors import MultiThreadedExecutor as localExecutor
 from librosshow.getch import Getch
 import librosshow.termgraphics as termgraphics
 
@@ -39,7 +40,7 @@ def capture_key_loop(viewer):
     while True:
         c = getch()
         if c == '\x03': # Ctrl+C
-            rospy.signal_shutdown("Ctrl+C pressed")
+            rclpy.shutdown()
 
         if "keypress" not in dir(viewer):
             continue
@@ -59,7 +60,7 @@ def capture_key_loop(viewer):
         else:
             viewer.keypress(c)
 
-if __name__ == "__main__":
+def main(args=None):
     # Parse arguments
     # TODO: proper argument parsing
     TOPIC = "-"
@@ -80,6 +81,12 @@ if __name__ == "__main__":
     else:
         USE_ASCII = False
 
+    # Initialize ROS2 stuff
+    rclpy.init()
+    node = rclpy.create_node('rosshow_' + str(random.randint(10000,99999)))
+    executor = rclpy.executors.SingleThreadedExecutor()
+    executor.add_node(node)
+
     if "-c1" in sys.argv:
         color_support = termgraphics.COLOR_SUPPORT_1
     elif "-c4" in sys.argv:
@@ -91,14 +98,12 @@ if __name__ == "__main__":
 
     # Get information on all topic types
 
-    topic_types = dict(rospy.get_published_topics())
+    topic_types = dict(node.get_topic_names_and_types())
     if TOPIC not in topic_types:
         print("Topic {0} does not appear to be published yet.".format(TOPIC))
         sys.exit(0)
 
-    rospy.init_node('rosshow_' + str(random.randint(10000,99999)))
-
-    if topic_types[TOPIC] not in VIEWER_MAPPING:
+    if topic_types[TOPIC][0] not in VIEWER_MAPPING:
         print("Unsupported message type.")
         exit()
 
@@ -108,20 +113,17 @@ if __name__ == "__main__":
             mode = (termgraphics.MODE_EASCII if USE_ASCII else termgraphics.MODE_UNICODE),
             color_support = color_support)
 
-    module_name, class_name, viewer_kwargs = VIEWER_MAPPING[topic_types[TOPIC]]
+    module_name, class_name, viewer_kwargs = VIEWER_MAPPING[topic_types[TOPIC][0]]
     viewer_class = getattr(__import__(module_name, fromlist=(class_name)), class_name)
     viewer = viewer_class(canvas, title = TOPIC, **viewer_kwargs)
 
-    message_package, message_name = topic_types[TOPIC].split("/", 2)
+    message_package, message_name = topic_types[TOPIC][0].split("/", 2)
     message_class = getattr(__import__(message_package + ".msg", fromlist=(message_name)), message_name)
 
     # Subscribe to the topic so the viewer actually gets the data
 
-    rospy.Subscriber(TOPIC, message_class, viewer.update)
+    subscriber = node.create_subscription(message_class, TOPIC, viewer.update)
 
-    # Listen for keypresses
-
-    getch = Getch()
 
     thread = threading.Thread(target = capture_key_loop, args = (viewer,))
     thread.daemon = True
@@ -129,15 +131,29 @@ if __name__ == "__main__":
 
     # Drawing loop
 
-    rate = rospy.Rate(15)
+    # TODO: implement proper loop rate with rclpy
+    # rate = rospy.Rate(15)
     try:
-        while not rospy.is_shutdown():
-            rate.sleep()
+        while rclpy.ok():
+            # rate.sleep()
+            executor.spin_once(0.05)
             viewer.draw()
-    except rospy.exceptions.ROSInterruptException:
-        sys.stdout.write("")
+    # TODO: implement proper exception handling with rclpy
+    # except rospy.exceptions.ROSInterruptException:
+    #     sys.stdout.write("")
 
     finally:
+        executor.shutdown()
+        node.destroy_node()
         getch.reset()
         sys.stdout.write("\033[%d;0H\n" % canvas.term_shape[1])
         sys.stdout.flush()
+
+
+
+if __name__ == "__main__":
+    # Listen for keypresses
+    getch = Getch()
+    main()
+
+    getch = Getch()

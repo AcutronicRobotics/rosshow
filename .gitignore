@@ -15,8 +15,10 @@ dist/
 downloads/
 eggs/
 .eggs/
+install/
 lib/
 lib64/
+log/
 parts/
 sdist/
 var/

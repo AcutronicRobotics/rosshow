@@ -31,14 +31,14 @@ class ImageViewer(object):
         w = self.g.shape[0]
         h = self.g.shape[1]
         if self.image.encoding == 'bgr8':
-            current_image = np.frombuffer(self.image.data, np.uint8).reshape((self.image.height, self.image.width, 3))[:, :, ::-1]
+            current_image = np.frombuffer(bytes(self.image.data), np.uint8).reshape((self.image.height, self.image.width, 3))[:, :, ::-1]
         elif self.image.encoding == 'rgb8':
-            current_image = np.frombuffer(self.image.data, np.uint8).reshape((self.image.height, self.image.width, 3))
+            current_image = np.frombuffer(bytes(self.image.data), np.uint8).reshape((self.image.height, self.image.width, 3))
         elif self.image.encoding == 'mono8' or self.image.encoding == '8UC1':
-            current_image = np.frombuffer(self.image.data, np.uint8).reshape((self.image.height, self.image.width))
+            current_image = np.frombuffer(bytes(self.image.data), np.uint8).reshape((self.image.height, self.image.width))
             current_image = np.array((current_image.T, current_image.T, current_image.T)).T
         elif self.image.encoding == 'mono16' or self.image.encoding == '16UC1':
-            current_image = np.frombuffer(self.image.data, np.uint16).reshape((self.image.height, self.image.width)).astype(np.float)
+            current_image = np.frombuffer(bytes(self.image.data), np.uint16).reshape((self.image.height, self.image.width)).astype(np.float)
             current_image_max = np.percentile(current_image, 95)
             current_image_min = np.percentile(current_image, 5)
             current_image = 255*((current_image - current_image_min)/(current_image_max - current_image_min))

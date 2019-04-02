@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import math
+import struct
 import time
 import numpy as np
-import sensor_msgs.point_cloud2 as pcl2
+from sensor_msgs.msg import PointField
 import librosshow.termgraphics as termgraphics
 
 class PointCloud2Viewer(object):
@@ -21,6 +23,86 @@ class PointCloud2Viewer(object):
         self.msg = None
         self.last_update_shape_time = 0
         self.title = title
+
+        self._DATATYPES = {}
+        self._DATATYPES[PointField.INT8]    = ('b', 1)
+        self._DATATYPES[PointField.UINT8]   = ('B', 1)
+        self._DATATYPES[PointField.INT16]   = ('h', 2)
+        self._DATATYPES[PointField.UINT16]  = ('H', 2)
+        self._DATATYPES[PointField.INT32]   = ('i', 4)
+        self._DATATYPES[PointField.UINT32]  = ('I', 4)
+        self._DATATYPES[PointField.FLOAT32] = ('f', 4)
+        self._DATATYPES[PointField.FLOAT64] = ('d', 8)
+
+    def _get_struct_fmt(self, is_bigendian, fields, field_names=None):
+        fmt = '>' if is_bigendian else '<'
+
+        offset = 0
+        for field in (f for f in sorted(fields, key=lambda f: f.offset) if field_names is None or f.name in field_names):
+            if offset < field.offset:
+                fmt += 'x' * (field.offset - offset)
+                offset = field.offset
+            if field.datatype not in self._DATATYPES:
+                print('Skipping unknown PointField datatype [%d]' % field.datatype)
+            else:
+                datatype_fmt, datatype_length = self._DATATYPES[field.datatype]
+                fmt    += field.count * datatype_fmt
+                offset += field.count * datatype_length
+
+        return fmt
+
+    def read_points(self, cloud, field_names=None, skip_nans=False, uvs=[]):
+        """
+        Read points from a PointCloud2 message.
+        @param cloud: The point cloud to read from.
+        @type  cloud: PointCloud2
+        @param field_names: The names of fields to read. If None, read all fields. [default: None]
+        @type  field_names: iterable
+        @param skip_nans: If True, then don't return any point with a NaN value.
+        @type  skip_nans: bool [default: False]
+        @param uvs: If specified, then only return the points at the given coordinates. [default: empty list]
+        @type  uvs: iterable
+        @return: Generator which yields a list of values for each point.
+        @rtype:  generator
+        """
+        fmt = self._get_struct_fmt(cloud.is_bigendian, cloud.fields, field_names)
+        width, height, point_step, row_step, data, isnan = cloud.width, cloud.height, cloud.point_step, cloud.row_step, bytes(cloud.data), math.isnan
+        unpack_from = struct.Struct(fmt).unpack_from
+
+        if skip_nans:
+            if uvs:
+                for u, v in uvs:
+                    p = unpack_from(data, (row_step * v) + (point_step * u))
+                    has_nan = False
+                    for pv in p:
+                        if isnan(pv):
+                            has_nan = True
+                            break
+                    if not has_nan:
+                        yield p
+            else:
+                for v in range(height):
+                    offset = row_step * v
+                    for u in range(width):
+                        p = unpack_from(data, offset)
+                        has_nan = False
+                        for pv in p:
+                            if isnan(pv):
+                                has_nan = True
+                                break
+                        if not has_nan:
+                            yield p
+                        offset += point_step
+        else:
+            if uvs:
+                for u, v in uvs:
+                    yield unpack_from(data, (row_step * v) + (point_step * u))
+            else:
+                for v in range(height):
+                    offset = row_step * v
+                    for u in range(width):
+                        yield unpack_from(data, offset)
+                        offset += point_step
 
     def keypress(self, c):
         if c == "+" or c == "=":
@@ -86,7 +168,7 @@ class PointCloud2Viewer(object):
                 self.camera_distance = (1 - animation_fraction) * self.camera_distance + animation_fraction * self.target_camera_distance
             self.calculate_rotation()
 
-        points = np.array(list(pcl2.read_points(self.msg, skip_nans = True, field_names = ("x", "y", "z"))), dtype = np.float16)
+        points = np.array(list(self.read_points(self.msg, skip_nans = True, field_names = ("x", "y", "z"))), dtype = np.float16)
         self.g.clear()
         w = self.g.shape[0]
         h = self.g.shape[1]

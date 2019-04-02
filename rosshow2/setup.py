@@ -1,10 +1,12 @@
-from distutils.core import setup
-from setuptools import find_packages
-from catkin_pkg.python_setup import generate_distutils_setup
+from setuptools import setup
 
-d = generate_distutils_setup(
-    packages=find_packages('src'),
-    package_dir={'': 'src'}
+package_name = 'rosshow'
+setup(
+    name=package_name,
+    version='0.6.2',
+    package_dir={"": "src"},
+    packages=["librosshow", "librosshow.viewers", "librosshow.viewers.generic", "librosshow.viewers.sensor_msgs"],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    scripts=['nodes/rosshow']
 )
-
-setup(**d)
