@@ -52,7 +52,10 @@ class LaserScanViewer(object):
         xmax = self.scale
         ymax = self.scale * h/w
 
-        angles = np.linspace(self.msg.angle_min, self.msg.angle_max, len(self.msg.ranges), dtype = np.float32)
+        if hasattr(self.msg, 'angle_start'):
+            angles = np.linspace(self.msg.angle_start, self.msg.angle_end, len(self.msg.ranges), dtype = np.float32)
+        else:
+            angles = np.linspace(self.msg.angle_min, self.msg.angle_max, len(self.msg.ranges), dtype = np.float32)
         ranges = np.array(self.msg.ranges, dtype = np.float32)
         x = ranges * np.cos(angles)
         y = ranges * np.sin(angles)

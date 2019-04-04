@@ -14,6 +14,13 @@
   <run_depend>rclpy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>hrim_sensor_camera_msgs</run_depend>
+  <run_depend>hrim_sensor_imu_msgs</run_depend>
+  <run_depend>hrim_sensor_lidar_msgs</run_depend>
+  <run_depend>hrim_sensor_3dcameradepth_msgs</run_depend>
+  <run_depend>hrim_sensor_3dcamerastereo_msgs</run_depend>
+  <run_depend>hrim_sensor_3dcameratof_msgs</run_depend>
+  <run_depend>hrim_sensor_rangefinder_msgs</run_depend>
   <export>
   </export>
 </package>
