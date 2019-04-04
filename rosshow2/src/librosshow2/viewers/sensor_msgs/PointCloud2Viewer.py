@@ -5,7 +5,7 @@ import struct
 import time
 import numpy as np
 from sensor_msgs.msg import PointField
-import librosshow.termgraphics as termgraphics
+import librosshow2.termgraphics as termgraphics
 
 class PointCloud2Viewer(object):
     def __init__(self, canvas, title = ""):
@@ -24,6 +24,7 @@ class PointCloud2Viewer(object):
         self.last_update_shape_time = 0
         self.title = title
 
+        # Taken from ROS1 sensor_msgs/point_cloud2.py
         self._DATATYPES = {}
         self._DATATYPES[PointField.INT8]    = ('b', 1)
         self._DATATYPES[PointField.UINT8]   = ('B', 1)
@@ -34,6 +35,7 @@ class PointCloud2Viewer(object):
         self._DATATYPES[PointField.FLOAT32] = ('f', 4)
         self._DATATYPES[PointField.FLOAT64] = ('d', 8)
 
+    # Taken from ROS1 sensor_msgs/point_cloud2.py
     def _get_struct_fmt(self, is_bigendian, fields, field_names=None):
         fmt = '>' if is_bigendian else '<'
 
@@ -51,6 +53,7 @@ class PointCloud2Viewer(object):
 
         return fmt
 
+    # Taken from ROS1 sensor_msgs/point_cloud2.py
     def read_points(self, cloud, field_names=None, skip_nans=False, uvs=[]):
         fmt = self._get_struct_fmt(cloud.is_bigendian, cloud.fields, field_names)
         width, height, point_step, row_step, data, isnan = cloud.width, cloud.height, cloud.point_step, cloud.row_step, bytes(cloud.data), math.isnan

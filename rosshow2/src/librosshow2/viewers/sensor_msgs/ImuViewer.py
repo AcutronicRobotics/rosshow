@@ -1,7 +1,7 @@
 import time
 import math
-import librosshow.termgraphics as termgraphics
-from librosshow.plotters import ScopePlotter, AnglePlotter
+import librosshow2.termgraphics as termgraphics
+from librosshow2.plotters import ScopePlotter, AnglePlotter
 
 class ImuViewer(object):
     def __init__(self, canvas, title = ""):

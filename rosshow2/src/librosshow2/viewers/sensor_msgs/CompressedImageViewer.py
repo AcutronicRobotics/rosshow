@@ -2,7 +2,7 @@ import io
 import numpy as np
 import time
 import PIL.Image
-import librosshow.termgraphics as termgraphics
+import librosshow2.termgraphics as termgraphics
 
 try:
     import PIL
