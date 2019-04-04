@@ -6,7 +6,7 @@ import math
 import numpy as np
 import requests
 import time
-import librosshow.termgraphics as termgraphics
+import librosshow2.termgraphics as termgraphics
 
 def memoize(f):
     """ Memoization decorator for functions taking one or more arguments. """

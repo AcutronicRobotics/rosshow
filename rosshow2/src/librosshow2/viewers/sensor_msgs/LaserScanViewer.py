@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-import librosshow.termgraphics as termgraphics
+import librosshow2.termgraphics as termgraphics
 
 class LaserScanViewer(object):
     def __init__(self, canvas, title = ""):

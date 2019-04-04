@@ -1,7 +1,7 @@
 import numpy as np
 import time
 import PIL.Image
-import librosshow.termgraphics as termgraphics
+import librosshow2.termgraphics as termgraphics
 
 class ImageViewer(object):
     def __init__(self, canvas, title = ""):

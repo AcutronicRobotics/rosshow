@@ -7,32 +7,32 @@ import time
 import random
 import threading
 from rclpy.executors import MultiThreadedExecutor as localExecutor
-from librosshow.getch import Getch
-import librosshow.termgraphics as termgraphics
+from librosshow2.getch import Getch
+import librosshow2.termgraphics as termgraphics
 
 VIEWER_MAPPING = {
-  "std_msgs/Bool": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Float32": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Float64": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Int8": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Int16": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Int32": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/Int64": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/UInt8": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/UInt16": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/UInt32": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "std_msgs/UInt64": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
-  "sensor_msgs/CompressedImage": ("librosshow.viewers.sensor_msgs.CompressedImageViewer", "CompressedImageViewer", {}),
-  "sensor_msgs/FluidPressure": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "fluid_pressure"}),
-  "sensor_msgs/RelativeHumidity": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "relative_humidity"}),
-  "sensor_msgs/Illuminance": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "illuminance"}),
-  "sensor_msgs/Image": ("librosshow.viewers.sensor_msgs.ImageViewer", "ImageViewer", {}),
-  "sensor_msgs/Imu": ("librosshow.viewers.sensor_msgs.ImuViewer", "ImuViewer", {}),
-  "sensor_msgs/LaserScan": ("librosshow.viewers.sensor_msgs.LaserScanViewer", "LaserScanViewer", {}),
-  "sensor_msgs/NavSatFix": ("librosshow.viewers.sensor_msgs.NavSatFixViewer", "NavSatFixViewer", {}),
-  "sensor_msgs/PointCloud2": ("librosshow.viewers.sensor_msgs.PointCloud2Viewer", "PointCloud2Viewer", {}),
-  "sensor_msgs/Range": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "range"}),
-  "sensor_msgs/Temperature": ("librosshow.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "temperature"}),
+  "std_msgs/Bool": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Float32": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Float64": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Int8": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Int16": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Int32": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/Int64": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/UInt8": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/UInt16": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/UInt32": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "std_msgs/UInt64": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {}),
+  "sensor_msgs/CompressedImage": ("librosshow2.viewers.sensor_msgs.CompressedImageViewer", "CompressedImageViewer", {}),
+  "sensor_msgs/FluidPressure": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "fluid_pressure"}),
+  "sensor_msgs/RelativeHumidity": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "relative_humidity"}),
+  "sensor_msgs/Illuminance": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "illuminance"}),
+  "sensor_msgs/Image": ("librosshow2.viewers.sensor_msgs.ImageViewer", "ImageViewer", {}),
+  "sensor_msgs/Imu": ("librosshow2.viewers.sensor_msgs.ImuViewer", "ImuViewer", {}),
+  "sensor_msgs/LaserScan": ("librosshow2.viewers.sensor_msgs.LaserScanViewer", "LaserScanViewer", {}),
+  "sensor_msgs/NavSatFix": ("librosshow2.viewers.sensor_msgs.NavSatFixViewer", "NavSatFixViewer", {}),
+  "sensor_msgs/PointCloud2": ("librosshow2.viewers.sensor_msgs.PointCloud2Viewer", "PointCloud2Viewer", {}),
+  "sensor_msgs/Range": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "range"}),
+  "sensor_msgs/Temperature": ("librosshow2.viewers.generic.SinglePlotViewer", "SinglePlotViewer", {"data_field": "temperature"}),
 }
 
 def capture_key_loop(viewer):
@@ -67,7 +67,7 @@ def main(args=None):
     argi = 1
     while TOPIC.startswith("-"):
         if argi >= len(sys.argv):
-            print("Usage: rosshow [-a] <topic>")
+            print("Usage: rosshow2 [-a] <topic>")
             print("   -a:   Use ASCII only (no Unicode)")
             print("   -c1:  Force monochrome")
             print("   -c4:  Force 4-bit color (16 colors)")
@@ -83,7 +83,7 @@ def main(args=None):
 
     # Initialize ROS2 stuff
     rclpy.init()
-    node = rclpy.create_node('rosshow_' + str(random.randint(10000,99999)))
+    node = rclpy.create_node('rosshow2_' + str(random.randint(10000,99999)))
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(node)
 

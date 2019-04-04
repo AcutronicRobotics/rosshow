@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>rosshow</name>
+  <name>rosshow2</name>
   <version>1.0.0</version>
   <description>cli tool for ROS2 message visualization</description>
   <author email="dheera@dheera.net">dheera</author>
