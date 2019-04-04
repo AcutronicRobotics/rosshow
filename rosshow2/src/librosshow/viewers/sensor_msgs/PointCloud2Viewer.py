@@ -52,19 +52,6 @@ class PointCloud2Viewer(object):
         return fmt
 
     def read_points(self, cloud, field_names=None, skip_nans=False, uvs=[]):
-        """
-        Read points from a PointCloud2 message.
-        @param cloud: The point cloud to read from.
-        @type  cloud: PointCloud2
-        @param field_names: The names of fields to read. If None, read all fields. [default: None]
-        @type  field_names: iterable
-        @param skip_nans: If True, then don't return any point with a NaN value.
-        @type  skip_nans: bool [default: False]
-        @param uvs: If specified, then only return the points at the given coordinates. [default: empty list]
-        @type  uvs: iterable
-        @return: Generator which yields a list of values for each point.
-        @rtype:  generator
-        """
         fmt = self._get_struct_fmt(cloud.is_bigendian, cloud.fields, field_names)
         width, height, point_step, row_step, data, isnan = cloud.width, cloud.height, cloud.point_step, cloud.row_step, bytes(cloud.data), math.isnan
         unpack_from = struct.Struct(fmt).unpack_from
@@ -213,4 +200,3 @@ class PointCloud2Viewer(object):
         self.g.text("up/down: tilt   left/right: rotate   +/-: zoom", (int(self.g.shape[0]/3), self.g.shape[1] - 4))
 
         self.g.draw()
-
