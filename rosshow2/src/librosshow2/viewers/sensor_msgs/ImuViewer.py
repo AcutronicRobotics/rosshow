@@ -117,26 +117,21 @@ class ImuViewer(object):
     def update(self, data):
         # quaternion to euler
         norm = (data.orientation.x ** 2 + data.orientation.y ** 2 + data.orientation.z ** 2 + data.orientation.w ** 2) ** 0.5
-        a = data.orientation.x / norm
-        b = data.orientation.y / norm
-        c = data.orientation.z / norm
-        d = data.orientation.w / norm
+        if norm != 0.:
+            a = data.orientation.x / norm
+            b = data.orientation.y / norm
+            c = data.orientation.z / norm
+            d = data.orientation.w / norm
 
-        yaw = math.atan2(2*a*b+2*c*d, 1-2*b*b-2*c*c)
-        pitch = math.asin(2*(a*c-b*d))
-        roll = math.atan2(2*a*d+2*b*c, 1-2*c*c-2*d*d)+math.pi
-        if roll > math.pi:
-            roll -= 2*math.pi
-
-        self.yaw_scope_plotter.update(yaw)
-        self.pitch_scope_plotter.update(pitch)
-        self.roll_scope_plotter.update(roll)
-        self.avx_scope_plotter.update(data.angular_velocity.x)
-        self.avy_scope_plotter.update(data.angular_velocity.y)
-        self.avz_scope_plotter.update(data.angular_velocity.z)
-        self.lax_scope_plotter.update(data.linear_acceleration.x)
-        self.lay_scope_plotter.update(data.linear_acceleration.y)
-        self.laz_scope_plotter.update(data.linear_acceleration.z)
+            yaw = math.atan2(2*a*b+2*c*d, 1-2*b*b-2*c*c)
+            pitch = math.asin(2*(a*c-b*d))
+            roll = math.atan2(2*a*d+2*b*c, 1-2*c*c-2*d*d)+math.pi
+            if roll > math.pi:
+                roll -= 2*math.pi
+        else:
+            yaw = 0.
+            pitch = 0.
+            roll = 0.
 
     def draw(self):
         t = time.time()
